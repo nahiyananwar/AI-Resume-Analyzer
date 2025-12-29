@@ -219,31 +219,3 @@ The classifier recognizes the following job categories:
 | Web Developer | HTML, CSS, JavaScript, React, UI/UX |
 | DevOps/Cloud Engineer | AWS, Docker, Kubernetes, CI/CD |
 | FullStack Developer | Node.js, React, MongoDB, full-stack |
-
-## 🔒 Environment Variables
-
-### Backend (`backend/.env`)
-```env
-CORS_ORIGINS=https://your-frontend.vercel.app
-```
-
-### Frontend (`frontend/.env.local`)
-```env
-NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
-```
-
-## 🧪 Testing
-
-### Test with sample text
-```bash
-curl -X POST http://localhost:8000/analyze \
-  -F "text=Jane Smith is an experienced machine learning engineer specializing in deep learning and computer vision. Email: jane.smith@email.com. Phone: 555-123-4567. She has worked at Google from 2018 to 2023 developing TensorFlow models. Skills include Python, PyTorch, TensorFlow, and neural networks. She holds a Master's degree in Computer Science from Stanford University."
-```
-
-## 📝 License
-
-MIT License - feel free to use this project for learning and development.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
