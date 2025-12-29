@@ -10,18 +10,8 @@ from dateutil import parser as date_parser
 from dateutil.relativedelta import relativedelta
 
 
-import sys
-import subprocess
-
-# Load spaCy model - will be loaded once when module is imported
-try:
-    nlp = spacy.load("en_core_web_sm")
-except OSError:
-    # If model not found, download it using the current Python executable
-    print("Downloading spaCy model 'en_core_web_sm'...")
-    subprocess.run([sys.executable, "-m", "spacy", "download", "en_core_web_sm"], check=True)
-    # Reload the model
-    nlp = spacy.load("en_core_web_sm")
+# Load spaCy model - installed via requirements.txt
+nlp = spacy.load("en_core_web_sm")
 
 
 # Common skills list for extraction
