@@ -49,7 +49,7 @@ An AI-powered resume analysis system that extracts key information from resumes,
 ## 📦 Project Structure
 
 ```
-AI Resume Analyzer/
+AI-Resume-Analyzer/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py              # FastAPI application
@@ -64,6 +64,8 @@ AI Resume Analyzer/
 │   │       ├── train_classifier.py
 │   │       ├── classifier.py
 │   │       └── resume_classifier.joblib
+│   ├── render.yaml              # Render deployment config
+│   ├── .env.example             # Environment variables template
 │   └── requirements.txt
 ├── frontend/
 │   ├── app/
@@ -73,7 +75,9 @@ AI Resume Analyzer/
 │   ├── components/
 │   │   ├── FileUpload.tsx       # Drag & drop upload
 │   │   └── ResultsDisplay.tsx   # Results UI
+│   ├── tailwind.config.js
 │   └── package.json
+├── .gitignore
 └── README.md
 ```
 
@@ -139,6 +143,29 @@ AI Resume Analyzer/
 
    The UI will be available at `http://localhost:3000`
 
+## 🌐 Deployment
+
+### Backend (Render)
+
+1. Go to [render.com](https://render.com) → **New** → **Web Service**
+2. Connect your GitHub repo
+3. Set **Root Directory** to `backend`
+4. Settings will auto-fill from `render.yaml`
+5. Add environment variable:
+   - `CORS_ORIGINS` = Your Vercel frontend URL (e.g., `https://your-app.vercel.app`)
+6. Deploy and copy the URL
+
+### Frontend (Vercel)
+
+1. Go to [vercel.com](https://vercel.com) → **New Project**
+2. Import your GitHub repo
+3. Set **Root Directory** to `frontend`
+4. Add environment variable:
+   - `NEXT_PUBLIC_API_URL` = Your Render backend URL (e.g., `https://your-api.onrender.com`)
+5. Deploy
+
+> ⚠️ **Important**: After deploying both, update Render's `CORS_ORIGINS` with your Vercel URL.
+
 ## 📡 API Reference
 
 ### POST /analyze
@@ -192,6 +219,18 @@ The classifier recognizes the following job categories:
 | Web Developer | HTML, CSS, JavaScript, React, UI/UX |
 | DevOps/Cloud Engineer | AWS, Docker, Kubernetes, CI/CD |
 | FullStack Developer | Node.js, React, MongoDB, full-stack |
+
+## 🔒 Environment Variables
+
+### Backend (`backend/.env`)
+```env
+CORS_ORIGINS=https://your-frontend.vercel.app
+```
+
+### Frontend (`frontend/.env.local`)
+```env
+NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+```
 
 ## 🧪 Testing
 
