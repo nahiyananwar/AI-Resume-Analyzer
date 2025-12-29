@@ -86,42 +86,84 @@ def extract_phone(text: str) -> Optional[str]:
 
 
 def extract_name(text: str) -> Optional[str]:
-    """Extract name from text using spaCy NER"""
-    # Process only the first portion of the text (name usually appears early)
-    first_portion = text[:1000] if len(text) > 1000 else text
+    """Extract name from text - prioritizing first lines where names typically appear"""
+    lines = text.split('\n')
+    
+    # Common non-name headers/sections to skip
+    skip_patterns = [
+        r'^(resume|cv|curriculum\s*vitae|profile|about|summary|objective|contact|experience|education|skills|projects|work|professional)s?$',
+        r'^(email|phone|address|linkedin|github|portfolio|website)s?:?$',
+        r'^(mr|ms|mrs|dr|prof)\.?\s*$',
+        r'^\d+',  # Starts with digit
+        r'^[+\(\d]',  # Phone number patterns
+        r'@',  # Email
+        r'^http',  # URLs
+        r'^www\.',  # URLs
+    ]
+    
+    # First pass: Check first 5 non-empty lines for a name-like pattern
+    checked = 0
+    for line in lines:
+        if checked >= 5:
+            break
+            
+        line = line.strip()
+        if not line or len(line) < 3:
+            continue
+            
+        checked += 1
+        line_lower = line.lower()
+        
+        # Skip if matches a skip pattern
+        should_skip = False
+        for pattern in skip_patterns:
+            if re.search(pattern, line_lower, re.IGNORECASE):
+                should_skip = True
+                break
+        if should_skip:
+            continue
+        
+        # Check if line looks like a name:
+        # - 2-5 words
+        # - Only letters, spaces, dots, hyphens, apostrophes
+        # - No digits
+        # - Not too long (names usually under 50 chars)
+        words = line.split()
+        if 2 <= len(words) <= 5 and len(line) < 50:
+            # Allow: letters, spaces, dots, hyphens, apostrophes
+            if re.match(r"^[A-Za-z][A-Za-z\s.\-']+$", line):
+                # Additional check: not all uppercase (likely a header)
+                if not line.isupper() or len(words) <= 3:
+                    # Capitalize properly
+                    return ' '.join(word.capitalize() if word.islower() else word for word in words)
+    
+    # Second pass: Use spaCy NER on first portion
+    first_portion = text[:1500] if len(text) > 1500 else text
     doc = nlp(first_portion)
     
-    # Look for PERSON entities
     for ent in doc.ents:
         if ent.label_ == "PERSON":
             name = ent.text.strip()
-            # Validate: 
-            # 1. At least 2 chars
-            # 2. No digits (prevents "Name + Phone" patterns)
-            # 3. Not all symbols
+            # Validate: at least 2 chars, no digits, not all symbols
             if len(name) >= 2 and not re.search(r'\d', name) and not re.match(r'^[\W]+$', name):
-                return name
-            
-            # If name has digits, try to split it?
-            if re.search(r'\d', name):
-                clean_name = re.split(r'\d', name)[0].strip()
-                if len(clean_name) >= 3:
-                     # Remove trailing symbols like + or -
-                    clean_name = re.sub(r'[\+\-\(\)]+$', '', clean_name).strip()
-                    if len(clean_name) >= 2:
-                        return clean_name
+                # Check it's not a common non-name word
+                name_lower = name.lower()
+                if not any(re.search(p, name_lower) for p in skip_patterns):
+                    return name
     
-    # Fallback: try to find name from first lines
-    lines = text.split('\n')[:10]  # Check first 10 lines
-    for line in lines:
+    # Third pass: Relaxed check on first 10 lines
+    for line in lines[:10]:
         line = line.strip()
-        # Check if line looks like a name (2-4 words, no special chars except standard name symbols)
-        if line and len(line.split()) >= 2 and len(line.split()) <= 4:
-            # Allow dots, dashes, apostrophes, but NO digits
-            if re.match(r'^[A-Za-z\s\.\-\']+$', line):
-                # Extra safety: Not an email, no phone digits
-                if '@' not in line and not re.search(r'\d', line):
-                    return line
+        if not line:
+            continue
+        words = line.split()
+        # Accept 2-4 word lines that look like names
+        if 2 <= len(words) <= 4 and len(line) < 40:
+            if re.match(r"^[A-Za-z][A-Za-z\s.\-']+$", line):
+                # Skip if likely a section header
+                line_lower = line.lower()
+                if not any(kw in line_lower for kw in ['experience', 'education', 'skill', 'project', 'work', 'summary', 'objective', 'contact']):
+                    return ' '.join(word.capitalize() if word.islower() else word for word in words)
     
     return None
 
