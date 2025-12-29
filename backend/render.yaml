@@ -1,0 +1,16 @@
+# Render.com deployment configuration
+# https://render.com/docs/yaml-spec
+
+services:
+  - type: web
+    name: ai-resume-analyzer-api
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: CORS_ORIGINS
+        sync: false  # Set this in Render dashboard after frontend deploy
+    healthCheckPath: /health
