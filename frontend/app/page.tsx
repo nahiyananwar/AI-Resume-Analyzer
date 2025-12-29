@@ -288,7 +288,7 @@ export default function ResumeAnalyzer() {
               <div className="flex items-center gap-6 text-xs text-gray-500">
                 <a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
                 <a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
-                <a href="#" className="hover:text-cyan-400 transition-colors">Contact</a>
+                <a href="https://nahiyan-anwar.onrender.com/" className="hover:text-cyan-400 transition-colors">Contact</a>
               </div>
             </div>
           </div>
